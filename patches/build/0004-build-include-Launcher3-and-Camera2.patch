@@ -1,0 +1,60 @@
+From 882e42e08f4122686abd02efb11fa1e5c6b2f876 Mon Sep 17 00:00:00 2001
+From: guest <guest@usa.net>
+Date: Mon, 9 Nov 2015 13:55:23 -0800
+Subject: [PATCH] Subject: build: include Launcher3 and Camera2
+
+---
+ target/product/core.mk      | 3 ++-
+ target/product/core_base.mk | 1 -
+ target/product/sdk_base.mk  | 2 +-
+ 3 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/target/product/core.mk b/target/product/core.mk
+index d453303..fae975a 100644
+--- a/target/product/core.mk
++++ b/target/product/core.mk
+@@ -25,6 +25,7 @@ PRODUCT_PACKAGES += \
+     Browser \
+     Calendar \
+     CalendarProvider \
++    Camera2 \
+     CaptivePortalLogin \
+     CertInstaller \
+     Contacts \
+@@ -40,7 +41,7 @@ PRODUCT_PACKAGES += \
+     KeyChain \
+     Keyguard \
+     LatinIME \
+-    Launcher2 \
++    Launcher3 \
+     ManagedProvisioning \
+     PicoTts \
+     PacProcessor \
+diff --git a/target/product/core_base.mk b/target/product/core_base.mk
+index 03d33e1..e4e3a7b 100644
+--- a/target/product/core_base.mk
++++ b/target/product/core_base.mk
+@@ -23,7 +23,6 @@ PRODUCT_PROPERTY_OVERRIDES := \
+ PRODUCT_PACKAGES += \
+     ContactsProvider \
+     DefaultContainerService \
+-    Home \
+     TelephonyProvider \
+     UserDictionaryProvider \
+     atrace \
+diff --git a/target/product/sdk_base.mk b/target/product/sdk_base.mk
+index 73c2524..4de8831 100644
+--- a/target/product/sdk_base.mk
++++ b/target/product/sdk_base.mk
+@@ -28,7 +28,7 @@ PRODUCT_PACKAGES := \
+ 	Gallery \
+ 	GestureBuilder \
+ 	Launcher3 \
+-	LegacyCamera \
++	Camera2 \
+ 	librs_jni \
+ 	libwnndict \
+ 	libWnnEngDic \
+-- 
+1.9.1
+

@@ -1,0 +1,25 @@
+From f539acafa72b4a4b864317bd7917abc36fbe345c Mon Sep 17 00:00:00 2001
+From: guest <guest@usa.net>
+Date: Mon, 9 May 2016 16:14:32 -0700
+Subject: [PATCH] frameworks/base: Fix rotation sensor timestamp
+
+---
+ .../core/java/com/android/server/policy/WindowOrientationListener.java  | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/services/core/java/com/android/server/policy/WindowOrientationListener.java b/services/core/java/com/android/server/policy/WindowOrientationListener.java
+index 9916223..e9a4bc6 100644
+--- a/services/core/java/com/android/server/policy/WindowOrientationListener.java
++++ b/services/core/java/com/android/server/policy/WindowOrientationListener.java
+@@ -598,7 +598,7 @@ public abstract class WindowOrientationListener {
+                 // Reset the orientation listener state if the samples are too far apart in time
+                 // or when we see values of (0, 0, 0) which indicates that we polled the
+                 // accelerometer too soon after turning it on and we don't have any data yet.
+-                final long now = event.timestamp;
++                final long now = SystemClock.elapsedRealtimeNanos();
+                 final long then = mLastFilteredTimestampNanos;
+                 final float timeDeltaMS = (now - then) * 0.000001f;
+                 final boolean skipSample;
+-- 
+1.9.1
+

@@ -1,0 +1,80 @@
+From caf9bfbb618fe5080564694eefbe8c6a750f96e2 Mon Sep 17 00:00:00 2001
+From: guest <guest@usa.net>
+Date: Mon, 9 May 2016 16:07:24 -0700
+Subject: [PATCH] framework/native: libgui: fix missing symbols for camera
+
+---
+ libs/gui/Android.mk        |  1 +
+ libs/gui/SensorManager.cpp | 23 +++++++++++++++++++++++
+ 2 files changed, 24 insertions(+)
+
+diff --git a/libs/gui/Android.mk b/libs/gui/Android.mk
+index 8a965dd..8aa77e6 100644
+--- a/libs/gui/Android.mk
++++ b/libs/gui/Android.mk
+@@ -22,6 +22,7 @@ LOCAL_CPPFLAGS := -std=c++1y -Weverything -Werror
+ # introduce significant overheads
+ LOCAL_CPPFLAGS += -Wno-exit-time-destructors
+ LOCAL_CPPFLAGS += -Wno-global-constructors
++LOCAL_CPPFLAGS += -Wno-old-style-cast -Wno-unused-parameter -Wno-sign-conversion -Wno-return-type-c-linkage
+ 
+ # We only care about compiling as C++14
+ LOCAL_CPPFLAGS += -Wno-c++98-compat-pedantic
+diff --git a/libs/gui/SensorManager.cpp b/libs/gui/SensorManager.cpp
+index 33608b5..109610b 100644
+--- a/libs/gui/SensorManager.cpp
++++ b/libs/gui/SensorManager.cpp
+@@ -32,6 +32,11 @@
+ #include <gui/SensorManager.h>
+ #include <gui/SensorEventQueue.h>
+ 
++extern "C" void *_ZN7android9SingletonINS_13SensorManagerEE5sLockE;
++extern "C" void *_ZN7android9SingletonINS_13SensorManagerEE9sInstanceE;
++void *_ZN7android9SingletonINS_13SensorManagerEE5sLockE;
++void *_ZN7android9SingletonINS_13SensorManagerEE9sInstanceE;
++static const char *sPkgName = "CameraVendorTegra";
+ // ----------------------------------------------------------------------------
+ namespace android {
+ // ----------------------------------------------------------------------------
+@@ -39,6 +44,12 @@ namespace android {
+ android::Mutex android::SensorManager::sLock;
+ std::map<String16, SensorManager*> android::SensorManager::sPackageInstances;
+ 
++extern "C" SensorManager& _ZN7android13SensorManager21getInstanceForPackageERKNS_8String16E(void *obj, const String16& packageName);
++extern "C" SensorManager& _ZN7android9SingletonINS_13SensorManagerEE11getInstanceEv(void *obj);
++extern "C" SensorManager& _ZN7android9SingletonINS_13SensorManagerEE11getInstanceEv(void *obj) {
++    const String16 name(sPkgName);
++    return _ZN7android13SensorManager21getInstanceForPackageERKNS_8String16E(obj, name);
++}
+ SensorManager& SensorManager::getInstanceForPackage(const String16& packageName) {
+     Mutex::Autolock _l(sLock);
+     SensorManager* sensorManager;
+@@ -88,6 +99,12 @@ SensorManager& SensorManager::getInstanceForPackage(const String16& packageName)
+     return *sensorManager;
+ }
+ 
++extern "C" void _ZN7android13SensorManagerC1ERKNS_8String16E(void *obj, const String16& opPackageName);
++extern "C" void _ZN7android13SensorManagerC1Ev(void *obj);
++extern "C" void _ZN7android13SensorManagerC1Ev(void *obj) {
++    const String16 name(sPkgName);
++    _ZN7android13SensorManagerC1ERKNS_8String16E(obj, name);
++}
+ SensorManager::SensorManager(const String16& opPackageName)
+     : mSensorList(0), mOpPackageName(opPackageName)
+ {
+@@ -201,6 +218,12 @@ Sensor const* SensorManager::getDefaultSensor(int type)
+     return NULL;
+ }
+ 
++extern "C" sp<SensorEventQueue> _ZN7android13SensorManager16createEventQueueENS_7String8Ei(void *, String8, int);
++extern "C" sp<SensorEventQueue> _ZN7android13SensorManager16createEventQueueEv(void *obj);
++extern "C" sp<SensorEventQueue> _ZN7android13SensorManager16createEventQueueEv(void *obj) {
++    String8 name(sPkgName);
++    return _ZN7android13SensorManager16createEventQueueENS_7String8Ei(obj, name, 0);
++}
+ sp<SensorEventQueue> SensorManager::createEventQueue(String8 packageName, int mode) {
+     sp<SensorEventQueue> queue;
+ 
+-- 
+1.9.1
+

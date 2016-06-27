@@ -1,0 +1,25 @@
+From 2c88cc0c5f42781f83fbb87a70bb4b9935f88a2c Mon Sep 17 00:00:00 2001
+From: guest <guest@usa.net>
+Date: Wed, 11 Nov 2015 17:21:03 -0800
+Subject: [PATCH] linker: avoid logcat warning with pre-KK/LP blobs
+
+---
+ linker/linker.cpp | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/linker/linker.cpp b/linker/linker.cpp
+index b860f70..ca88bda 100644
+--- a/linker/linker.cpp
++++ b/linker/linker.cpp
+@@ -2941,7 +2941,7 @@ bool soinfo::link_image(const soinfo_list_t& global_group, const soinfo_list_t&
+     }
+     // Make segments writable to allow text relocations to work properly. We will later call
+     // phdr_table_protect_segments() after all of them are applied and all constructors are run.
+-    DL_WARN("%s has text relocations. This is wasting memory and prevents "
++    DEBUG("%s has text relocations. This is wasting memory and prevents "
+             "security hardening. Please fix.", get_realpath());
+     if (phdr_table_unprotect_segments(phdr, phnum, load_bias) < 0) {
+       DL_ERR("can't unprotect loadable segments for \"%s\": %s",
+-- 
+1.9.1
+

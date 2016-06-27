@@ -1,0 +1,26 @@
+From e29b01060482f993fc36743bb36433a484d47575 Mon Sep 17 00:00:00 2001
+From: streambinder <davidepucci@hiddenhost.org>
+Date: Mon, 9 Nov 2015 16:50:35 -0800
+Subject: [PATCH] frameworks/base: fix GPS for old GPS HALs Updated version 
+ needed to fix wakelock issues
+
+---
+ services/core/java/com/android/server/location/GpsLocationProvider.java | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/services/core/java/com/android/server/location/GpsLocationProvider.java b/services/core/java/com/android/server/location/GpsLocationProvider.java
+index 5ae6300..676e2fd 100644
+--- a/services/core/java/com/android/server/location/GpsLocationProvider.java
++++ b/services/core/java/com/android/server/location/GpsLocationProvider.java
+@@ -973,7 +973,7 @@ public class GpsLocationProvider implements LocationProviderInterface {
+         if (mSuplServerHost != null
+                 && mSuplServerPort > TCP_MIN_PORT
+                 && mSuplServerPort <= TCP_MAX_PORT) {
+-            native_set_agps_server(AGPS_TYPE_SUPL, mSuplServerHost, mSuplServerPort);
++         /* native_set_agps_server(AGPS_TYPE_SUPL, mSuplServerHost, mSuplServerPort); */
+         }
+     }
+ 
+-- 
+1.9.1
+

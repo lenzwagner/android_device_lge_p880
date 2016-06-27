@@ -1,0 +1,69 @@
+From 200ba11cb9c64703bd5820532e778e4ac0804bae Mon Sep 17 00:00:00 2001
+From: streambinder <davidepucci@hiddenhost.org>
+Date: Wed, 11 Nov 2015 13:43:02 -0800
+Subject: [PATCH] telephony: RIL: squashed support for old RIL
+
+---
+ src/java/com/android/internal/telephony/RIL.java | 32 ++++++++++++++++++++++++
+ 1 file changed, 32 insertions(+)
+
+diff --git a/src/java/com/android/internal/telephony/RIL.java b/src/java/com/android/internal/telephony/RIL.java
+index d767028..4cc640b 100644
+--- a/src/java/com/android/internal/telephony/RIL.java
++++ b/src/java/com/android/internal/telephony/RIL.java
+@@ -4508,6 +4508,16 @@ public class RIL extends BaseCommands implements CommandsInterface {
+      */
+     @Override
+     public void iccOpenLogicalChannel(String AID, Message response) {
++        if(mRilVersion < 10) {
++            if (response != null) {
++                CommandException ex = new CommandException(
++                    CommandException.Error.REQUEST_NOT_SUPPORTED);
++                AsyncResult.forMessage(response, null, ex);
++                response.sendToTarget();
++            }
++            return;
++        }
++
+         RILRequest rr = RILRequest.obtain(RIL_REQUEST_SIM_OPEN_CHANNEL, response);
+         rr.mParcel.writeString(AID);
+ 
+@@ -4538,6 +4548,17 @@ public class RIL extends BaseCommands implements CommandsInterface {
+     @Override
+     public void iccTransmitApduLogicalChannel(int channel, int cla, int instruction,
+             int p1, int p2, int p3, String data, Message response) {
++
++        if(mRilVersion < 10) {
++            if (response != null) {
++                CommandException ex = new CommandException(
++                    CommandException.Error.REQUEST_NOT_SUPPORTED);
++                AsyncResult.forMessage(response, null, ex);
++                response.sendToTarget();
++            }
++            return;
++        }
++
+         if (channel <= 0) {
+             throw new RuntimeException(
+                 "Invalid channel in iccTransmitApduLogicalChannel: " + channel);
+@@ -4562,6 +4583,17 @@ public class RIL extends BaseCommands implements CommandsInterface {
+      */
+     private void iccTransmitApduHelper(int rilCommand, int channel, int cla,
+             int instruction, int p1, int p2, int p3, String data, Message response) {
++
++        if(mRilVersion < 10) {
++            if (response != null) {
++                CommandException ex = new CommandException(
++                    CommandException.Error.REQUEST_NOT_SUPPORTED);
++                AsyncResult.forMessage(response, null, ex);
++                response.sendToTarget();
++            }
++            return;
++        }
++
+         RILRequest rr = RILRequest.obtain(rilCommand, response);
+         rr.mParcel.writeInt(channel);
+         rr.mParcel.writeInt(cla);
+-- 
+1.9.1
+

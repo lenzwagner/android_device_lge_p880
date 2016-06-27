@@ -1,0 +1,86 @@
+From ae0f8ec501e41f4b9bb64e301ad542732d9eadd0 Mon Sep 17 00:00:00 2001
+From: guest <guest@usa.net>
+Date: Thu, 28 Apr 2016 12:23:08 -0700
+Subject: [PATCH] libgui: add pre-MR2-compatible symbol for setPosition and 
+ setOrientation
+
+---
+ include/gui/SurfaceComposerClient.h |  2 ++
+ libs/gui/SurfaceComposerClient.cpp  | 14 ++++++++++++++
+ libs/gui/SurfaceControl.cpp         | 10 ++++++++++
+ 3 files changed, 26 insertions(+)
+
+diff --git a/include/gui/SurfaceComposerClient.h b/include/gui/SurfaceComposerClient.h
+index 37d953e..37737ba 100644
+--- a/include/gui/SurfaceComposerClient.h
++++ b/include/gui/SurfaceComposerClient.h
+@@ -120,6 +120,8 @@ public:
+     //! Close a composer transaction on all active SurfaceComposerClients.
+     static void closeGlobalTransaction(bool synchronous = false);
+ 
++    static int setOrientation(int32_t dpy, int orientation, uint32_t flags);
++
+     //! Flag the currently open transaction as an animation transaction.
+     static void setAnimationTransaction();
+ 
+diff --git a/libs/gui/SurfaceComposerClient.cpp b/libs/gui/SurfaceComposerClient.cpp
+index 6ad47d8..6e08591 100644
+--- a/libs/gui/SurfaceComposerClient.cpp
++++ b/libs/gui/SurfaceComposerClient.cpp
+@@ -434,6 +434,15 @@ void Composer::setDisplaySize(const sp<IBinder>& token, uint32_t width, uint32_t
+     s.what |= DisplayState::eDisplaySizeChanged;
+ }
+ 
++status_t Composer::setOrientation(int orientation) {
++    sp<ISurfaceComposer> sm(ComposerService::getComposerService());
++    sp<IBinder> token(sm->getBuiltInDisplay(ISurfaceComposer::eDisplayIdMain));
++    DisplayState& s(getDisplayStateLocked(token));
++    s.orientation = orientation;
++    mForceSynchronous = true; // TODO: do we actually still need this?
++    return NO_ERROR;
++}
++
+ // ---------------------------------------------------------------------------
+ 
+ SurfaceComposerClient::SurfaceComposerClient()
+@@ -609,6 +618,11 @@ status_t SurfaceComposerClient::setMatrix(const sp<IBinder>& id, float dsdx, flo
+     return getComposer().setMatrix(this, id, dsdx, dtdx, dsdy, dtdy);
+ }
+ 
++status_t SurfaceComposerClient::setOrientation(int32_t dpy, int orientation, uint32_t flags)
++{
++    return Composer::getInstance().setOrientation(orientation);
++}
++
+ // ----------------------------------------------------------------------------
+ 
+ void SurfaceComposerClient::setDisplaySurface(const sp<IBinder>& token,
+diff --git a/libs/gui/SurfaceControl.cpp b/libs/gui/SurfaceControl.cpp
+index 1983027..ecb8c21 100644
+--- a/libs/gui/SurfaceControl.cpp
++++ b/libs/gui/SurfaceControl.cpp
+@@ -99,11 +99,21 @@ status_t SurfaceControl::setLayer(uint32_t layer) {
+     if (err < 0) return err;
+     return mClient->setLayer(mHandle, layer);
+ }
++extern "C" status_t _ZN7android14SurfaceControl8setLayerEj(void *obj, uint32_t layer);
++extern "C" status_t _ZN7android14SurfaceControl8setLayerEi(void *obj, int32_t layer);
++extern "C" status_t _ZN7android14SurfaceControl8setLayerEi(void *obj, int32_t layer) {
++    return _ZN7android14SurfaceControl8setLayerEj(obj, (uint32_t)layer);
++}
+ status_t SurfaceControl::setPosition(float x, float y) {
+     status_t err = validate();
+     if (err < 0) return err;
+     return mClient->setPosition(mHandle, x, y);
+ }
++extern "C" status_t _ZN7android14SurfaceControl11setPositionEff(void *obj, float x, float y);
++extern "C" status_t _ZN7android14SurfaceControl11setPositionEii(void *obj, int32_t x, int32_t y);
++extern "C" status_t _ZN7android14SurfaceControl11setPositionEii(void *obj, int32_t x, int32_t y) {
++    return _ZN7android14SurfaceControl11setPositionEff(obj, (float)x, (float)y);
++}
+ status_t SurfaceControl::setSize(uint32_t w, uint32_t h) {
+     status_t err = validate();
+     if (err < 0) return err;
+-- 
+1.9.1
+

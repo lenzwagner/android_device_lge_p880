@@ -1,0 +1,30 @@
+From 61437c0620b68f9969839926ade73d39216e1ac1 Mon Sep 17 00:00:00 2001
+From: guest <guest@usa.net>
+Date: Wed, 11 Nov 2015 17:43:08 -0800
+Subject: [PATCH] ota: remove cruft
+
+---
+ tools/releasetools/ota_from_target_files.py | 7 +------
+ 1 file changed, 1 insertion(+), 6 deletions(-)
+
+diff --git a/tools/releasetools/ota_from_target_files.py b/tools/releasetools/ota_from_target_files.py
+index 9951b39..ed24ec5 100755
+--- a/tools/releasetools/ota_from_target_files.py
++++ b/tools/releasetools/ota_from_target_files.py
+@@ -519,12 +519,7 @@ def WriteFullOTAPackage(input_zip, output_zip):
+       info_dict=OPTIONS.info_dict)
+ 
+   has_recovery_patch = HasRecoveryPatch(input_zip)
+-  block_based = OPTIONS.block_based and has_recovery_patch
+-
+-  if not OPTIONS.omit_prereq:
+-    ts = GetBuildProp("ro.build.date.utc", OPTIONS.info_dict)
+-    ts_text = GetBuildProp("ro.build.date", OPTIONS.info_dict)
+-    script.AssertOlderBuild(ts, ts_text)
++  block_based = OPTIONS.block_based
+ 
+   AppendAssertions(script, OPTIONS.info_dict, oem_dict)
+   device_specific.FullOTA_Assertions()
+-- 
+1.9.1
+

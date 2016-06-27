@@ -1,0 +1,57 @@
+From 40932cf22de191edf62203d5438d8f290761f70c Mon Sep 17 00:00:00 2001
+From: guest <guest@usa.net>
+Date: Fri, 22 Apr 2016 17:33:27 -0700
+Subject: [PATCH] binder: add legacy MemoryDealer constructor for Nvidia  OMX
+ adaptor
+
+---
+ libs/binder/IPCThreadState.cpp | 8 ++++++++
+ libs/binder/MemoryDealer.cpp   | 8 ++++++++
+ 2 files changed, 16 insertions(+)
+
+diff --git a/libs/binder/IPCThreadState.cpp b/libs/binder/IPCThreadState.cpp
+index ef88181..c107690 100644
+--- a/libs/binder/IPCThreadState.cpp
++++ b/libs/binder/IPCThreadState.cpp
+@@ -343,11 +343,19 @@ status_t IPCThreadState::clearLastError()
+     return err;
+ }
+ 
++extern "C" pid_t _ZNK7android14IPCThreadState13getCallingPidEv(void *obj);
++extern "C" int _ZN7android14IPCThreadState13getCallingPidEv(void *obj) {
++    return _ZNK7android14IPCThreadState13getCallingPidEv(obj);
++}
+ pid_t IPCThreadState::getCallingPid() const
+ {
+     return mCallingPid;
+ }
+ 
++extern "C" uid_t _ZNK7android14IPCThreadState13getCallingUidEv(void *obj);
++extern "C" int _ZN7android14IPCThreadState13getCallingUidEv(void *obj) {
++    return _ZNK7android14IPCThreadState13getCallingUidEv(obj);
++}
+ uid_t IPCThreadState::getCallingUid() const
+ {
+     return mCallingUid;
+diff --git a/libs/binder/MemoryDealer.cpp b/libs/binder/MemoryDealer.cpp
+index 8739625..bf7f7a1 100644
+--- a/libs/binder/MemoryDealer.cpp
++++ b/libs/binder/MemoryDealer.cpp
+@@ -225,6 +225,14 @@ Allocation::~Allocation()
+ 
+ // ----------------------------------------------------------------------------
+ 
++extern "C" void _ZN7android12MemoryDealerC2EjPKcj(void* obj, size_t size, const char* name, uint32_t flags);
++extern "C" void _ZN7android12MemoryDealerC1EjPKc(void* obj, size_t size, const char* name) {
++    _ZN7android12MemoryDealerC2EjPKcj(obj, size, name, 0);
++}
++extern "C" void _ZN7android10MemoryBaseC1ERKNS_2spINS_11IMemoryHeapEEEij(void*, void*, ssize_t, size_t);
++extern "C" void _ZN7android10MemoryBaseC1ERKNS_2spINS_11IMemoryHeapEEElj(void* obj, void* h, long o, unsigned int size) {
++    _ZN7android10MemoryBaseC1ERKNS_2spINS_11IMemoryHeapEEEij(obj, h, o, size);
++}
+ MemoryDealer::MemoryDealer(size_t size, const char* name, uint32_t flags)
+     : mHeap(new MemoryHeapBase(size, flags, name)),
+     mAllocator(new SimpleBestFitAllocator(size))
+-- 
+1.9.1
+
